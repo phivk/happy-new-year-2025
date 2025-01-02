@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.min.js"></script>
+  </head>
+  <body>
+    <script>
+      let mAngle = 0;
+      let hAngle = 0;
+      let paused = true;
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+      }
+      function drawClock(sizeOfClock, minAngle, hourAngle) {
+        let clockStrokeWeight = 8;
+        noStroke();
+        ellipse(0, 0, sizeOfClock);
+        stroke(0);
+        strokeWeight(clockStrokeWeight);
+        push();
+        rotate(radians(minAngle));
+        line(0, 0, 0, -(sizeOfClock * 0.33 - clockStrokeWeight / 2));
+        pop();
+        push();
+        rotate(radians(hourAngle));
+        line(0, 0, 0, -(sizeOfClock * 0.5 - clockStrokeWeight / 2));
+        pop();
+      }
+      function draw() {
+        background(220);
+        let cols = 8;
+        let rows = 3;
+        let clockSize = 50;
+        let spacing = clockSize + 10;
+        let startX = spacing;
+        let startY = height / 2 - spacing;
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            push();
+            translate(startX + i * spacing, startY + j * spacing);
+            drawClock(clockSize, mAngle, hAngle);
+            pop();
+          }
+        }
+        if (!paused) {
+          mAngle += 1 / 12;
+          hAngle += 1;
+        }
+      }
+      function keyPressed() {
+        if (key === "p") {
+          paused = !paused;
+        }
+      }
+      function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+      }
+    </script>
+  </body>
+</html>
