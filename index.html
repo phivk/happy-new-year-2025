@@ -20,6 +20,36 @@
       let cols = 8;
       let rows = 3;
 
+      const clocks2024 = [
+        // row 1
+        [90, 90],
+        [180, -90],
+        [90, 180],
+        [-90, 180],
+        [90, 90],
+        [180, -90],
+        [180, 180],
+        [180, 180],
+        // row 2
+        [180, 90],
+        [-90, 0],
+        [0, 180],
+        [0, 180],
+        [180, 90],
+        [-90, 0],
+        [90, 0],
+        [0, 180],
+        // row 3
+        [90, 0],
+        [-90, -90],
+        [0, 90],
+        [0, -90],
+        [90, 0],
+        [-90, -90],
+        [225, 225],
+        [0, 0],
+      ];
+
       const clocks2025 = [
         // row 1
         [90, 90],
@@ -73,11 +103,11 @@
 
       function setup() {
         createCanvas(windowWidth, windowHeight);
-        initializeClocksSpecific(clocks2025);
+        initializeClocksSpecific(clocks2024);
 
-        for (let i = 0; i < 6; i++) {
-          moveOneHour(true);
-        }
+        // for (let i = 0; i < 6; i++) {
+        //   moveOneHour(true);
+        // }
       }
 
       function drawClock(sizeOfClock, clockAngles) {
