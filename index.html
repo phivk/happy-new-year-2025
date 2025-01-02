@@ -61,12 +61,17 @@
           );
           return;
         }
-        clocks = [...clockData];
+        // Create deep copy of each clock object
+        clocks = clockData.map((clock) => ({ ...clock }));
       }
 
       function setup() {
         createCanvas(windowWidth, windowHeight);
         initializeClocksSpecific(clocks2025);
+
+        for (let i = 0; i < 6; i++) {
+          moveOneHour(true);
+        }
       }
 
       function drawClock(sizeOfClock, clockAngles) {
@@ -83,6 +88,29 @@
         rotate(radians(clockAngles[0])); // minute
         line(0, 0, 0, -(sizeOfClock * 0.5 - clockStrokeWeight / 2));
         pop();
+      }
+
+      function normalizeAngle(angle) {
+        // Normalize angle to 0-360 range
+        angle = angle % 360;
+        return angle < 0 ? angle + 360 : angle;
+      }
+
+      function clockStatesEqual(state1, state2) {
+        return state1.every((clock, i) => {
+          const normalizedClock1 = [
+            normalizeAngle(clock[0]),
+            normalizeAngle(clock[1]),
+          ];
+          const normalizedClock2 = [
+            normalizeAngle(state2[i][0]),
+            normalizeAngle(state2[i][1]),
+          ];
+
+          const diff0 = Math.abs(normalizedClock1[0] - normalizedClock2[0]);
+          const diff1 = Math.abs(normalizedClock1[1] - normalizedClock2[1]);
+          return diff0 < 1 && diff1 < 1;
+        });
       }
 
       function draw() {
@@ -105,6 +133,11 @@
               clocks[idx][1] += (speed * direction) / 12; // hour
             }
           }
+        }
+
+        // Check if current state matches target state
+        if (!paused && clockStatesEqual(clocks, clocks2025)) {
+          paused = true;
         }
       }
 
