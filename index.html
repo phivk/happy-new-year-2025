@@ -108,6 +108,16 @@
         }
       }
 
+      function moveOneHour(forward = true) {
+        const hourStep = forward ? 30 : -30; // 30 degrees = 1 hour
+        const minuteStep = forward ? 360 : -360; // full circle for minute hand
+
+        clocks.forEach((clock) => {
+          clock[0] += minuteStep; // minute hand
+          clock[1] += hourStep; // hour hand
+        });
+      }
+
       function keyPressed() {
         if ((key === "p") | (key === " ")) {
           paused = !paused;
@@ -120,6 +130,12 @@
         }
         if (keyCode === DOWN_ARROW) {
           speed = Math.max(speed - 0.5, MIN_SPEED);
+        }
+        if (keyCode === RIGHT_ARROW) {
+          moveOneHour(true);
+        }
+        if (keyCode === LEFT_ARROW) {
+          moveOneHour(false);
         }
       }
 
