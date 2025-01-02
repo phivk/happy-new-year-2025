@@ -5,53 +5,115 @@
   </head>
   <body>
     <script>
-      let mAngle = 0;
-      let hAngle = 0;
+      let clocks = [];
       let paused = true;
+      let direction = 1; // 1 for forward, -1 for reverse
+      let cols = 8;
+      let rows = 3;
+
+      const clocks2025 = [
+        // row 1
+        [90, 90],
+        [180, -90],
+        [90, 180],
+        [-90, 180],
+        [90, 90],
+        [180, -90],
+        [180, 90],
+        [-90, -90],
+        // row 2
+        [180, 90],
+        [-90, 0],
+        [0, 180],
+        [0, 180],
+        [180, 90],
+        [-90, 0],
+        [90, 0],
+        [180, -90],
+        // row 3
+        [90, 0],
+        [-90, -90],
+        [0, 90],
+        [0, -90],
+        [90, 0],
+        [-90, -90],
+        [90, 90],
+        [-90, 0],
+      ];
+
+      function initializeClocksRandom() {
+        clocks = Array(cols * rows)
+          .fill()
+          .map(() => [
+            random(360), // minute
+            random(360), // hour
+          ]);
+      }
+
+      function initializeClocksSpecific(clockData) {
+        if (clockData.length !== cols * rows) {
+          console.error(
+            "Input array must match the number of clocks:",
+            cols * rows
+          );
+          return;
+        }
+        clocks = [...clockData];
+      }
+
       function setup() {
         createCanvas(windowWidth, windowHeight);
+        initializeClocksSpecific(clocks2025);
       }
-      function drawClock(sizeOfClock, minAngle, hourAngle) {
+
+      function drawClock(sizeOfClock, clockAngles) {
         let clockStrokeWeight = 8;
         noStroke();
         ellipse(0, 0, sizeOfClock);
         stroke(0);
         strokeWeight(clockStrokeWeight);
         push();
-        rotate(radians(minAngle));
+        rotate(radians(clockAngles[1])); // hour
         line(0, 0, 0, -(sizeOfClock * 0.33 - clockStrokeWeight / 2));
         pop();
         push();
-        rotate(radians(hourAngle));
+        rotate(radians(clockAngles[0])); // minute
         line(0, 0, 0, -(sizeOfClock * 0.5 - clockStrokeWeight / 2));
         pop();
       }
+
       function draw() {
         background(220);
-        let cols = 8;
-        let rows = 3;
         let clockSize = 50;
         let spacing = clockSize + 10;
         let startX = spacing;
         let startY = height / 2 - spacing;
+
         for (let i = 0; i < cols; i++) {
           for (let j = 0; j < rows; j++) {
+            let idx = i + j * cols;
             push();
             translate(startX + i * spacing, startY + j * spacing);
-            drawClock(clockSize, mAngle, hAngle);
+            drawClock(clockSize, clocks[idx]);
             pop();
+
+            if (!paused) {
+              clocks[idx][0] += 2 * direction; // minute
+              clocks[idx][1] += (2 * direction) / 12; // hour
+            }
           }
         }
-        if (!paused) {
-          mAngle += 1 / 12;
-          hAngle += 1;
-        }
       }
+
       function keyPressed() {
         if (key === "p") {
           paused = !paused;
         }
+        if (key === "d") {
+          direction *= -1; // Toggle between 1 and -1
+        }
       }
+
       function windowResized() {
         resizeCanvas(windowWidth, windowHeight);
       }
