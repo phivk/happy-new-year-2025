@@ -8,6 +8,9 @@
       let clocks = [];
       let paused = true;
       let direction = 1; // 1 for forward, -1 for reverse
+      let speed = 2; // base animation speed
+      const MIN_SPEED = 0.5;
+      const MAX_SPEED = 12;
       let cols = 8;
       let rows = 3;
 
@@ -98,19 +101,25 @@
             pop();
 
             if (!paused) {
-              clocks[idx][0] += 2 * direction; // minute
-              clocks[idx][1] += (2 * direction) / 12; // hour
+              clocks[idx][0] += speed * direction; // minute
+              clocks[idx][1] += (speed * direction) / 12; // hour
             }
           }
         }
       }
 
       function keyPressed() {
-        if (key === "p") {
+        if ((key === "p") | (key === " ")) {
           paused = !paused;
         }
         if (key === "d") {
           direction *= -1; // Toggle between 1 and -1
+        }
+        if (keyCode === UP_ARROW) {
+          speed = Math.min(speed + 0.5, MAX_SPEED);
+        }
+        if (keyCode === DOWN_ARROW) {
+          speed = Math.max(speed - 0.5, MIN_SPEED);
         }
       }
 
