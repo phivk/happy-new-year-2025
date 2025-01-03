@@ -14,7 +14,7 @@
       let clocks = [];
       let paused = true;
       let direction = 1; // 1 for forward, -1 for reverse
-      let speedFactor = 1; // base animation speed
+      let speedFactor = 2; // base animation speed
       const MIN_SPEED = -24;
       const MAX_SPEED = 24;
       let cols = 8;
@@ -81,21 +81,14 @@
       ];
 
       let clockSpeeds = []; // Array to store individual clock speeds
-      const TRANSITION_DURATION = 3000; // Duration in milliseconds
-
-      function normalizeAngleDifference(diff, minRotation = 0) {
-        diff = diff % 360;
-        if (diff > 180) diff -= 360;
-        if (diff < -180) diff += 360;
-        return diff + minRotation;
-      }
+      const TRANSITION_DURATION = 1000; // Duration in milliseconds
 
       function calculateClockSpeeds(startState, endState, duration) {
         return startState.map((startClock, i) => {
           const endClock = endState[i];
           const minuteDiff = normalizeAngleDifference(
             endClock[0] - startClock[0],
-            12 * 360 // 12 full rotations for minute hand
+            2 * 360 // 2 full rotations for minute hand
           );
           const hourDiff = normalizeAngleDifference(
             endClock[1] - startClock[1],
@@ -154,9 +147,12 @@
       }
 
       function normalizeAngle(angle) {
-        // Normalize angle to 0-360 range
-        angle = angle % 360;
-        return angle < 0 ? angle + 360 : angle;
+        return ((angle % 360) + 360) % 360;
+      }
+
+      function normalizeAngleDifference(diff, minRotation = 0) {
+        const normalized = (((diff % 360) + 540) % 360) - 180;
+        return normalized + minRotation;
       }
 
       function clockStatesEqual(state1, state2) {
