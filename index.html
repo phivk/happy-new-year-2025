@@ -181,8 +181,8 @@
         background(220);
         let clockSize = 50;
         let spacing = clockSize + 10;
-        let startX = width / 2 - 4 * clockSize;
-        let startY = height / 2 - spacing;
+        let startX = width / 2 - spacing * (cols / 2 - 0.5);
+        let startY = height / 2 - spacing * (rows / 2 - 0.5);
 
         for (let i = 0; i < cols; i++) {
           for (let j = 0; j < rows; j++) {
