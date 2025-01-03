@@ -12,13 +12,15 @@
   <body>
     <script>
       let clocks = [];
-      let paused = true;
+      let clockSpeeds = []; // Array to store individual clock speeds
+      let paused = false;
       let direction = 1; // 1 for forward, -1 for reverse
       let speedFactor = 2; // base animation speed
       const MIN_SPEED = -24;
       const MAX_SPEED = 24;
       let cols = 8;
       let rows = 3;
+      const TRANSITION_DURATION = 1000; // Duration in milliseconds
 
       const clocks2024 = [
         // row 1
@@ -79,9 +81,6 @@
         [90, 90],
         [-90, 0],
       ];
-
-      let clockSpeeds = []; // Array to store individual clock speeds
-      const TRANSITION_DURATION = 1000; // Duration in milliseconds
 
       function calculateClockSpeeds(startState, endState, duration) {
         return startState.map((startClock, i) => {
