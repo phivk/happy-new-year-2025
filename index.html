@@ -12,15 +12,20 @@
   <body>
     <script>
       let clocks = [];
-      let clockSpeeds = []; // Array to store individual clock speeds
-      let paused = false;
-      let direction = 1; // 1 for forward, -1 for reverse
-      let speedFactor = 2; // base animation speed
-      const MIN_SPEED = -24;
-      const MAX_SPEED = 24;
+      let clockSpeeds = [];
       let cols = 8;
       let rows = 3;
-      const TRANSITION_DURATION = 1000; // Duration in milliseconds
+      let paused = true;
+      let direction = 1; // 1 for forward, -1 for reverse
+      let speedFactor = 2;
+      const MIN_SPEED = -24;
+      const MAX_SPEED = 24;
+      // const TRANSITION_DURATION = 1000;
+      let animationProgress = 0;
+      let startDelay = 60; // 1 second delay before animation starts
+      let delayCounter = startDelay;
+      const FPS = 60;
+      const TRANSITION_DURATION = FPS * 3; // 3 seconds animation
 
       const clocks2024 = [
         // row 1
@@ -172,6 +177,30 @@
         });
       }
 
+      function easeInOutQuad(t) {
+        // Quadratic ease-in-out curve
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      }
+
+      function interpolateClockStates(startState, endState, progress) {
+        return startState.map((startClock, i) => {
+          const endClock = endState[i];
+          const minuteDiff = normalizeAngleDifference(
+            endClock[0] - startClock[0],
+            2 * 360
+          );
+          const hourDiff = normalizeAngleDifference(
+            endClock[1] - startClock[1],
+            360
+          );
+
+          return [
+            startClock[0] + minuteDiff * progress,
+            startClock[1] + hourDiff * progress,
+          ];
+        });
+      }
+
       function draw() {
         background(220);
         let clockSize = 50;
@@ -179,6 +208,33 @@
         let startX = width / 2 - spacing * (cols / 2 - 0.5);
         let startY = height / 2 - spacing * (rows / 2 - 0.5);
 
+        // Handle initial delay
+        if (delayCounter > 0) {
+          delayCounter--;
+          if (delayCounter === 0) {
+            paused = false;
+          }
+        }
+
+        // Update animation progress
+        if (!paused && animationProgress < 1) {
+          animationProgress += 1 / TRANSITION_DURATION;
+          if (animationProgress >= 1) {
+            animationProgress = 1;
+            paused = true;
+          } else {
+            // Calculate eased progress
+            const easedProgress = easeInOutQuad(animationProgress);
+            // Interpolate clock positions
+            clocks = interpolateClockStates(
+              clocks2024,
+              clocks2025,
+              easedProgress
+            );
+          }
+        }
+
+        // Draw all clocks
         for (let i = 0; i < cols; i++) {
           for (let j = 0; j < rows; j++) {
             let idx = i + j * cols;
@@ -186,17 +242,7 @@
             translate(startX + i * spacing, startY + j * spacing);
             drawClock(clockSize, clocks[idx]);
             pop();
-
-            if (!paused) {
-              clocks[idx][0] += clockSpeeds[idx][0] * speedFactor; // minute
-              clocks[idx][1] += clockSpeeds[idx][1] * speedFactor; // hour
-            }
           }
-        }
-
-        // Check if current state matches target state
-        if (!paused && clockStatesEqual(clocks, clocks2025)) {
-          paused = true;
         }
       }
 
