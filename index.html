@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.2/lib/p5.min.js"></script>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -40,6 +40,34 @@
         opacity: 1;
       }
 
+      #saveButton {
+        position: fixed;
+        bottom: 20px;
+        right: 86px; /* position next to reset button */
+        width: 56px;
+        height: 56px;
+        background: #333;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      #saveButton:hover {
+        background: #444;
+        transform: scale(1.1);
+      }
+
+      #saveButton.visible {
+        opacity: 1;
+      }
+
       .material-icons {
         font-size: 24px;
       }
@@ -48,6 +76,9 @@
   <body>
     <button id="resetButton">
       <span class="material-icons">replay</span>
+    </button>
+    <button id="saveButton">
+      <span class="material-icons">download</span>
     </button>
     <script>
       let clocks = [];
@@ -61,10 +92,14 @@
       const MAX_SPEED = 24;
       // const TRANSITION_DURATION = 1000;
       let animationProgress = 0;
-      let startDelay = 60; // 1 second delay before animation starts
-      let delayCounter = startDelay;
       const FPS = 60;
       const TRANSITION_DURATION = FPS * 3; // 3 seconds animation
+      const START_DELAY = 60; // 1 second delay before animation
+      const END_DELAY = 60; // 1 second delay after animation for recording only
+      const FILENAME = "clocks-2024-2025";
+      const TOTAL_FRAMES = START_DELAY + TRANSITION_DURATION + END_DELAY;
+      let delayCounter = START_DELAY;
+      let isRecording = false;
 
       const clocks2024 = [
         // row 1
@@ -172,18 +207,29 @@
           TRANSITION_DURATION
         );
 
-        // Add reset button handler
         document
           .getElementById("resetButton")
           .addEventListener("click", resetAnimation);
+        document
+          .getElementById("saveButton")
+          .addEventListener("click", startRecording);
+      }
+
+      function startRecording() {
+        resetAnimation();
+        isRecording = true;
+        saveGif(FILENAME, TOTAL_FRAMES, { units: "frames" });
+        // Hide both buttons during recording
+        document.getElementById("saveButton").classList.remove("visible");
+        document.getElementById("resetButton").classList.remove("visible");
       }
 
       function resetAnimation() {
         initializeClocksSpecific(clocks2024);
         animationProgress = 0;
-        delayCounter = startDelay;
+        delayCounter = START_DELAY;
         paused = true;
-        document.getElementById("resetButton").classList.remove("visible");
+        isRecording = false;
       }
 
       function drawClock(sizeOfClock, clockAngles) {
@@ -274,11 +320,16 @@
           if (animationProgress >= 1) {
             animationProgress = 1;
             paused = true;
-            document.getElementById("resetButton").classList.add("visible");
+            if (isRecording) {
+              isRecording = false;
+              document.getElementById("resetButton").classList.add("visible");
+              document.getElementById("saveButton").classList.add("visible");
+            } else {
+              document.getElementById("resetButton").classList.add("visible");
+              document.getElementById("saveButton").classList.add("visible");
+            }
           } else {
-            // Calculate eased progress
             const easedProgress = easeInOutQuad(animationProgress);
-            // Interpolate clock positions
             clocks = interpolateClockStates(
               clocks2024,
               clocks2025,
