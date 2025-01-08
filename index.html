@@ -2,14 +2,53 @@
 <html lang="en">
   <head>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
         overflow: hidden;
       }
+
+      #resetButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        background: #333;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      #resetButton:hover {
+        background: #444;
+        transform: scale(1.1);
+      }
+
+      #resetButton.visible {
+        opacity: 1;
+      }
+
+      .material-icons {
+        font-size: 24px;
+      }
     </style>
   </head>
   <body>
+    <button id="resetButton">
+      <span class="material-icons">replay</span>
+    </button>
     <script>
       let clocks = [];
       let clockSpeeds = [];
@@ -132,6 +171,19 @@
           clocks2025,
           TRANSITION_DURATION
         );
+
+        // Add reset button handler
+        document
+          .getElementById("resetButton")
+          .addEventListener("click", resetAnimation);
+      }
+
+      function resetAnimation() {
+        initializeClocksSpecific(clocks2024);
+        animationProgress = 0;
+        delayCounter = startDelay;
+        paused = true;
+        document.getElementById("resetButton").classList.remove("visible");
       }
 
       function drawClock(sizeOfClock, clockAngles) {
@@ -222,6 +274,7 @@
           if (animationProgress >= 1) {
             animationProgress = 1;
             paused = true;
+            document.getElementById("resetButton").classList.add("visible");
           } else {
             // Calculate eased progress
             const easedProgress = easeInOutQuad(animationProgress);
