@@ -10,6 +10,15 @@
       body {
         margin: 0;
         overflow: hidden;
+        background: rgb(220, 220, 220);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      canvas {
+        display: block;
       }
 
       #resetButton {
@@ -98,6 +107,10 @@
       const END_DELAY = 60; // 1 second delay after animation for recording only
       const FILENAME = "clocks-2024-2025";
       const TOTAL_FRAMES = START_DELAY + TRANSITION_DURATION + END_DELAY;
+      const CLOCK_SIZE = 50;
+      const CLOCK_SPACING = CLOCK_SIZE + 10;
+      const MIN_PADDING = CLOCK_SPACING;
+
       let delayCounter = START_DELAY;
       let isRecording = false;
 
@@ -198,8 +211,16 @@
         clocks = clockData.map((clock) => ({ ...clock }));
       }
 
+      function getCanvasSize() {
+        const sceneWidth = cols * CLOCK_SPACING;
+        const sceneHeight = rows * CLOCK_SPACING;
+        const size = Math.max(sceneWidth, sceneHeight) + MIN_PADDING * 2;
+        return { width: size, height: size };
+      }
+
       function setup() {
-        createCanvas(windowWidth, windowHeight);
+        const { width, height } = getCanvasSize();
+        createCanvas(width, height);
         initializeClocksSpecific(clocks2024);
         clockSpeeds = calculateClockSpeeds(
           clocks2024,
@@ -301,10 +322,26 @@
 
       function draw() {
         background(220);
-        let clockSize = 50;
-        let spacing = clockSize + 10;
-        let startX = width / 2 - spacing * (cols / 2 - 0.5);
-        let startY = height / 2 - spacing * (rows / 2 - 0.5);
+
+        // Center clocks in square canvas
+        const { width } = getCanvasSize();
+        const sceneWidth = cols * CLOCK_SPACING;
+        const sceneHeight = rows * CLOCK_SPACING;
+        const offsetX =
+          Math.floor((width - sceneWidth) / 2) + 0.5 * CLOCK_SPACING;
+        const offsetY =
+          Math.floor((width - sceneHeight) / 2) + 0.5 * CLOCK_SPACING;
+
+        // Draw all clocks
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            let idx = i + j * cols;
+            push();
+            translate(offsetX + i * CLOCK_SPACING, offsetY + j * CLOCK_SPACING);
+            drawClock(CLOCK_SIZE, clocks[idx]);
+            pop();
+          }
+        }
 
         // Handle initial delay
         if (delayCounter > 0) {
@@ -335,17 +372,6 @@
               clocks2025,
               easedProgress
             );
-          }
-        }
-
-        // Draw all clocks
-        for (let i = 0; i < cols; i++) {
-          for (let j = 0; j < rows; j++) {
-            let idx = i + j * cols;
-            push();
-            translate(startX + i * spacing, startY + j * spacing);
-            drawClock(clockSize, clocks[idx]);
-            pop();
           }
         }
       }
@@ -379,10 +405,6 @@
         if (keyCode === LEFT_ARROW) {
           moveOneHour(false);
         }
-      }
-
-      function windowResized() {
-        resizeCanvas(windowWidth - 1, windowHeight - 1);
       }
     </script>
   </body>
