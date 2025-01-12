@@ -10,7 +10,6 @@
       body {
         margin: 0;
         overflow: hidden;
-        background: rgb(220, 220, 220);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -113,6 +112,10 @@
 
       let delayCounter = START_DELAY;
       let isRecording = false;
+
+      const BACKGROUND_COLOR = "#83c5be";
+      const CLOCK_FACE_COLOR = "#006d77";
+      const CLOCK_HANDS_COLOR = "#edf6f9";
 
       const clocks2024 = [
         // row 1
@@ -221,6 +224,9 @@
       function setup() {
         const { width, height } = getCanvasSize();
         createCanvas(width, height);
+        // Set body background color to match canvas
+        document.body.style.backgroundColor = BACKGROUND_COLOR;
+
         initializeClocksSpecific(clocks2024);
         clockSpeeds = calculateClockSpeeds(
           clocks2024,
@@ -256,8 +262,9 @@
       function drawClock(sizeOfClock, clockAngles) {
         let clockStrokeWeight = 8;
         noStroke();
+        fill(CLOCK_FACE_COLOR);
         ellipse(0, 0, sizeOfClock);
-        stroke(0);
+        stroke(CLOCK_HANDS_COLOR);
         strokeWeight(clockStrokeWeight);
         push();
         rotate(radians(clockAngles[1])); // hour
@@ -321,7 +328,7 @@
       }
 
       function draw() {
-        background(220);
+        background(BACKGROUND_COLOR);
 
         // Center clocks in square canvas
         const { width } = getCanvasSize();
